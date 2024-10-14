@@ -162,6 +162,7 @@ data[['Premis Cd', 'Vict Age', 'Vict Sex', 'Vict Descent', 'AREA', 'TIME OCC', '
 
 
 
+
 # Chuyen du lieu thanh dang array
 # X = data.iloc[:,: -1 ].values
 # y = data.iloc[:, -1].values
@@ -178,9 +179,10 @@ ros = RandomOverSampler()
 X_res, y_res = nm.fit_resample(X, y)
 
 
+
 # Chuyen du lieu thanh dang array
-X_main = X.iloc[:,:].values
-y_main = y.iloc[:].values
+X_main = X_res.iloc[:,:].values
+y_main = y_res.iloc[:].values
 
 
 # Tien hanh xu ly nhung thuoc tinh chua gia tri null
