@@ -155,9 +155,33 @@ data['Crm Cd'] = data['Crm Cd'].apply(categorize_crime_type)
 data['Premis Cd'] = data['Premis Cd'].apply(categorize_location)
 data['Vict Age'] = data['Vict Age'].apply(categorize_age)
 
+#Scale du lieu (chuan hoa du lieu dung min max)
+scaler = MinMaxScaler()
+data[['Premis Cd', 'Vict Age', 'Vict Sex', 'Vict Descent', 'AREA', 'TIME OCC', 'Weapon Used Cd']] = scaler.fit_transform(data[['Premis Cd', 'Vict Age','Vict Sex', 'Vict Descent', 'AREA', 'TIME OCC', 'Weapon Used Cd']])
+
+
+
+
 # Chuyen du lieu thanh dang array
-X = data.iloc[:,: -1 ].values
-y = data.iloc[:, -1].values
+# X = data.iloc[:,: -1 ].values
+# y = data.iloc[:, -1].values
+
+
+X = data.drop(['Crm Cd'], axis = 1)
+y = data['Crm Cd']
+#under_samling
+from imblearn.under_sampling import NearMiss
+nm = NearMiss()
+# Oversampling
+from imblearn.over_sampling import RandomOverSampler
+ros = RandomOverSampler()
+X_res, y_res = nm.fit_resample(X, y)
+
+
+# Chuyen du lieu thanh dang array
+X_main = X.iloc[:,:].values
+y_main = y.iloc[:].values
+
 
 # Tien hanh xu ly nhung thuoc tinh chua gia tri null
 # imputer = SimpleImputer(missing_values=np.nan, strategy="most_frequent")
@@ -168,4 +192,4 @@ y = data.iloc[:, -1].values
 # X[:, 6:7] = imputer.fit_transform((X[:, 6:7]))
 
 # Phan chia tap du lieu
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X_main, y_main, test_size=0.2, random_state=42)
