@@ -1,704 +1,233 @@
-# import numpy as np
-# import pandas as pd
-# import matplotlib.pyplot as plt
-# import seaborn as sns
-# from sklearn.model_selection import train_test_split
-# from sklearn.naive_bayes import GaussianNB
-# from sklearn.metrics import accuracy_score, confusion_matrix
-# from docx import Document
-# from docx.shared import Inches
-# import io
-
-# # Đọc dữ liệu từ file CSV
-# file_path = 'D:\\THBuoi2_NguyenHaiDuong_B2013465\\iris_data.csv'  # Thay đổi đường dẫn nếu cần
-# data = pd.read_csv(file_path)
-
-# # Giả sử rằng cột cuối cùng là nhãn lớp
-# X = data.iloc[:, :-1].values  # Tất cả các cột trừ cột cuối
-# y = data.iloc[:, -1].values   # Cột cuối cùng
-
-# # Hàm để vẽ ma trận phân lớp và lưu vào đối tượng BytesIO
-# def save_confusion_matrix_to_image(cm, title='Ma trận phân lớp'):
-#     buf = io.BytesIO()
-#     plt.figure(figsize=(8, 6))
-#     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=data.columns[:-1], yticklabels=data.columns[:-1])
-#     plt.title(title)
-#     plt.xlabel('Nhãn dự đoán')
-#     plt.ylabel('Nhãn thật')
-#     plt.savefig(buf, format='png')
-#     buf.seek(0)
-#     plt.close()
-#     return buf
-
-# # Hàm đánh giá mô hình Naive Bayes
-# def naive_bayes_evaluation():
-#     # Phân chia dữ liệu theo 80% Train, 20% Test
-#     X_train_80, X_test_20, y_train_80, y_test_20 = train_test_split(X, y, test_size=0.2, random_state=42)
-    
-#     # Phân chia dữ liệu theo phương pháp Hold-out (2/3 Train, 1/3 Test)
-#     X_train_66, X_test_33, y_train_66, y_test_33 = train_test_split(X, y, test_size=1/3, random_state=42)
-
-#     # Mô hình Naive Bayes
-#     nb = GaussianNB()
-
-#     # Tạo đối tượng Document
-#     doc = Document()
-#     doc.add_heading('Đánh giá mô hình Naive Bayes', 0)
-
-#     # Đánh giá với 80% Train, 20% Test
-#     nb.fit(X_train_80, y_train_80)
-#     y_pred_20 = nb.predict(X_test_20)
-#     acc_20 = accuracy_score(y_test_20, y_pred_20)
-#     doc.add_paragraph(f"Naive Bayes (80% Train, 20% Test): Độ chính xác = {acc_20:.2f}")
-
-#     cm_20 = confusion_matrix(y_test_20, y_pred_20, labels=np.unique(y))
-#     buf_20 = save_confusion_matrix_to_image(cm_20, title='Ma trận phân lớp Naive Bayes (80% Train, 20% Test)')
-#     doc.add_picture(buf_20, width=Inches(6.0))
-    
-#     # Đánh giá với Hold-out (2/3 Train, 1/3 Test)
-#     nb.fit(X_train_66, y_train_66)
-#     y_pred_33 = nb.predict(X_test_33)
-#     acc_33 = accuracy_score(y_test_33, y_pred_33)
-#     doc.add_paragraph(f"Naive Bayes (Hold-out 2/3 Train, 1/3 Test): Độ chính xác = {acc_33:.2f}")
-
-#     cm_33 = confusion_matrix(y_test_33, y_pred_33, labels=np.unique(y))
-#     buf_33 = save_confusion_matrix_to_image(cm_33, title='Ma trận phân lớp Naive Bayes (Hold-out 2/3 Train, 1/3 Test)')
-#     doc.add_picture(buf_33, width=Inches(6.0))
-
-#     # Lưu tài liệu
-#     file_name = "D:\\THBuoi2_NguyenHaiDuong_B2013465\\ThongKeKQ_Bayes.docx"
-#     doc.save(file_name)
-#     print(f"Kết quả đã được lưu vào file: {file_name}")
-# # Thực hiện đánh giá
-# naive_bayes_evaluation()
-
-
-
-# import pandas as pd
-# import numpy as np
-# from sklearn.preprocessing import LabelEncoder
-# from sklearn.impute import SimpleImputer
-# from sklearn.model_selection import train_test_split
-# from sklearn.naive_bayes import GaussianNB
-# from sklearn.metrics import accuracy_score, classification_report
-
-# # Đọc dữ liệu
-# df = pd.read_csv("D:\\MHUD\\THBuoi2_NguyenHaiDuong_B2013465\\Crime_Data_from_2020_to_Present.csv", sep=",")
-
-# # Lấy thuộc tính và nhãn
-# data = df[['TIME OCC', 'AREA', 'Vict Age', 'Vict Sex', 'Vict Descent', 'Premis Cd', 'Weapon Used Cd', 'LOCATION', 'Crm Cd']]
-
-# # Chuyển dữ liệu thành dạng array
-# X = data.iloc[:, :-1].values
-# y = data.iloc[:, -1].values
-
-# # Xử lý những thuộc tính chứa giá trị null
-# imputer = SimpleImputer(missing_values=np.nan, strategy="most_frequent")
-# imputer.fit(X[:, 3:7])
-# X[:, 3:7] = imputer.transform(X[:, 3:7])
-
-# # Mã hóa dữ liệu bằng LabelEncoder
-# encoder = LabelEncoder()
-# X[:, 3] = encoder.fit_transform(X[:, 3])  # Mã hóa cột 'Vict Sex'
-# X[:, 4] = encoder.fit_transform(X[:, 4])  # Mã hóa cột 'Vict Descent'
-# X[:, 7] = encoder.fit_transform(X[:, 7])  # Mã hóa cột 'LOCATION'
-
-# # Phân chia dữ liệu
-# for split_ratio in [2/3, 0.8]:
-#     test_size = 1 - split_ratio
-#     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
-    
-#     print(f"Số lượng mẫu trong tập Train: {len(X_train)}")
-#     print(f"Số lượng mẫu trong tập Test: {len(X_test)}")
-
-#     # Xây dựng mô hình Gaussian Naive Bayes
-#     gnb = GaussianNB()
-#     gnb.fit(X_train, y_train)
-#     y_pred = gnb.predict(X_test)
-
-#     # Đánh giá độ chính xác
-#     accuracy = accuracy_score(y_test, y_pred) * 100  # Nhân với 100 để chuyển thành %
-#     print(f'Phân chia dữ liệu: {int(split_ratio * 100)}% Train, {int(test_size * 100)}% Test')
-#     print(f'Độ chính xác tổng thể: {accuracy:.2f}%')
-
-#     # In classification report với zero_division=1 để tránh cảnh báo
-#     print('Báo cáo phân loại:')
-#     print(classification_report(y_test, y_pred, zero_division=1))
-
-
-# import pandas as pd
-# import numpy as np
-# from sklearn.preprocessing import LabelEncoder
-# from sklearn.impute import SimpleImputer
-# from sklearn.model_selection import train_test_split, KFold
-# from sklearn.neighbors import KNeighborsClassifier
-# from sklearn.naive_bayes import GaussianNB
-# from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-# import seaborn as sns
-# import matplotlib.pyplot as plt
-# import io
-# from docx import Document
-# from docx.shared import Inches
-# import os
-
-# # Đọc dữ liệu
-# df = pd.read_csv("D:\\MHUD\\THBuoi2_NguyenHaiDuong_B2013465\\Crime_Data_from_2020_to_Present.csv", sep=",")
-
-# # Chọn thuộc tính và nhãn
-# data = df[['TIME OCC', 'AREA', 'Vict Age', 'Vict Sex', 'Vict Descent', 'Premis Cd', 'Weapon Used Cd', 'LOCATION', 'Crm Cd']]
-
-# # Chuyển dữ liệu thành dạng array
-# X = data.iloc[:, :-1].values
-# y = data.iloc[:, -1].values
-
-# # Xử lý những thuộc tính chứa giá trị null
-# imputer = SimpleImputer(missing_values=np.nan, strategy="most_frequent")
-# X[:, 3:7] = imputer.fit_transform(X[:, 3:7])
-
-# # Mã hóa dữ liệu bằng LabelEncoder
-# encoder = LabelEncoder()
-# X[:, 3] = encoder.fit_transform(X[:, 3])  # Encode 'Vict Sex'
-# X[:, 4] = encoder.fit_transform(X[:, 4])  # Encode 'Vict Descent'
-# X[:, 7] = encoder.fit_transform(X[:, 7])  # Encode 'LOCATION'
-
-# # Đường dẫn file DOCX
-# docx_file_path = 'D:\\MHUD\\THBuoi2_NguyenHaiDuong_B2013465\\ThongKeKQ_Bayes_KNN.docx'
-# if os.path.exists(docx_file_path):
-#     os.remove(docx_file_path)
-# doc = Document()
-
-# # Hàm để lưu ma trận phân lớp vào file DOCX
-# def save_confusion_matrix_to_image(cm, title='Ma trận phân lớp'):
-#     buf = io.BytesIO()
-#     plt.figure(figsize=(8, 6))
-#     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=np.unique(y), yticklabels=np.unique(y))
-#     plt.title(title)
-#     plt.xlabel('Nhãn dự đoán')
-#     plt.ylabel('Nhãn thực tế')
-#     plt.savefig(buf, format='png')
-#     buf.seek(0)
-#     plt.close()
-#     return buf
-
-# # Phân chia dữ liệu
-# kf = KFold(n_splits=5, shuffle=True, random_state=42)
-
-# for train_index, test_index in kf.split(X):
-#     X_train, X_test = X[train_index], X[test_index]
-#     y_train, y_test = y[train_index], y[test_index]
-
-#     # Số lượng phần tử và nhãn trong tập test
-#     print(f"Số lượng phần tử trong tập test: {len(X_test)}")
-#     print(f"Giá trị nhãn khác nhau trong tập test: {np.unique(y_test)}")
-
-#     doc.add_paragraph(f"Số lượng phần tử trong tập test: {len(X_test)}")
-#     doc.add_paragraph(f"Giá trị nhãn khác nhau trong tập test: {np.unique(y_test)}")
-
-#     # Bước d: Mô hình KNN
-#     knn = KNeighborsClassifier(n_neighbors=9)
-#     knn.fit(X_train, y_train)
-#     y_pred_knn = knn.predict(X_test)
-
-#     # Đánh giá KNN
-#     accuracy_knn = accuracy_score(y_test, y_pred_knn) * 100
-#     print(f"Độ chính xác tổng thể của KNN: {accuracy_knn:.2f}%")
-#     print("Báo cáo phân loại KNN:")
-#     print(classification_report(y_test, y_pred_knn, zero_division=1))
-
-#     doc.add_paragraph(f"Độ chính xác tổng thể của KNN: {accuracy_knn:.2f}%")
-#     doc.add_paragraph("Báo cáo phân loại KNN:")
-#     doc.add_paragraph(classification_report(y_test, y_pred_knn, zero_division=1))
-
-#     # In ra giá trị của 7 phần tử đầu tiên
-#     print(f"Giá trị nhãn thực tế của 7 phần tử đầu tiên: {y_test[:7]}")
-#     print(f"Giá trị nhãn dự đoán của 7 phần tử đầu tiên: {y_pred_knn[:7]}")
-    
-#     doc.add_paragraph(f"Giá trị nhãn thực tế của 7 phần tử đầu tiên: {y_test[:7]}")
-#     doc.add_paragraph(f"Giá trị nhãn dự đoán của 7 phần tử đầu tiên: {y_pred_knn[:7]}")
-
-#     # Bước d: Ma trận phân lớp KNN
-#     cm_knn = confusion_matrix(y_test, y_pred_knn)
-#     print("Ma trận phân lớp KNN:")
-#     print(cm_knn)
-
-#     buf_cm_knn = save_confusion_matrix_to_image(cm_knn, title='Ma trận phân lớp KNN')
-#     doc.add_paragraph("Ma trận phân lớp của KNN:")
-#     doc.add_picture(buf_cm_knn, width=Inches(6))
-
-#     # Bước e: Mô hình Bayes
-#     gnb = GaussianNB()
-#     gnb.fit(X_train, y_train)
-#     y_pred_bayes = gnb.predict(X_test)
-
-#     # Đánh giá Naive Bayes
-#     accuracy_bayes = accuracy_score(y_test, y_pred_bayes) * 100
-#     print(f"Độ chính xác tổng thể của Naive Bayes: {accuracy_bayes:.2f}%")
-#     print("Báo cáo phân loại Naive Bayes:")
-#     print(classification_report(y_test, y_pred_bayes, zero_division=1))
-
-#     doc.add_paragraph(f"Độ chính xác tổng thể của Naive Bayes: {accuracy_bayes:.2f}%")
-#     doc.add_paragraph("Báo cáo phân loại Naive Bayes:")
-#     doc.add_paragraph(classification_report(y_test, y_pred_bayes, zero_division=1))
-
-#     # Bước e: Ma trận phân lớp Naive Bayes
-#     cm_bayes = confusion_matrix(y_test, y_pred_bayes)
-#     print("Ma trận phân lớp Naive Bayes:")
-#     print(cm_bayes)
-
-#     buf_cm_bayes = save_confusion_matrix_to_image(cm_bayes, title='Ma trận phân lớp Naive Bayes')
-#     doc.add_paragraph("Ma trận phân lớp của Naive Bayes:")
-#     doc.add_picture(buf_cm_bayes, width=Inches(6))
-
-#     break  # Chỉ chạy lần phân chia đầu tiên
-
-# # Lưu file DOCX
-# doc.save(docx_file_path)
-# print(f"Kết quả đã được lưu vào file: {docx_file_path}")
-
-
-
-
-# # 26%
-
-# import pandas as pd
-# import numpy as np
-# from sklearn.preprocessing import LabelEncoder
-# from sklearn.impute import SimpleImputer
-# from sklearn.model_selection import KFold
-# from sklearn.naive_bayes import GaussianNB
-# from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-# import seaborn as sns
-# import matplotlib.pyplot as plt
-# import io
-# from docx import Document
-# from docx.shared import Inches
-# import os
-
-# # Đọc dữ liệu
-# df = pd.read_csv("D:\\MHUD\\THBuoi2_NguyenHaiDuong_B2013465\\Crime_Data_from_2020_to_Present.csv", sep=",")
-
-# # Chọn thuộc tính và nhãn
-# data = df[['TIME OCC', 'AREA', 'Vict Age', 'Vict Sex', 'Vict Descent', 'Premis Cd', 'Weapon Used Cd', 'LOCATION', 'Crm Cd']]
-
-# # Chuyển dữ liệu thành dạng array
-# X = data.iloc[:, :-1].values
-# y = data.iloc[:, -1].values
-
-# # Xử lý những thuộc tính chứa giá trị null
-# imputer = SimpleImputer(missing_values=np.nan, strategy="most_frequent")
-# X[:, 3:7] = imputer.fit_transform(X[:, 3:7])
-
-# # Mã hóa dữ liệu bằng LabelEncoder
-# encoder = LabelEncoder()
-# X[:, 3] = encoder.fit_transform(X[:, 3])  # Encode 'Vict Sex'
-# X[:, 4] = encoder.fit_transform(X[:, 4])  # Encode 'Vict Descent'
-# X[:, 7] = encoder.fit_transform(X[:, 7])  # Encode 'LOCATION'
-
-# # Đường dẫn file DOCX
-# docx_file_path = 'D:\\MHUD\\THBuoi2_NguyenHaiDuong_B2013465\\ThongKeKQ_Bayes.docx'
-# if os.path.exists(docx_file_path):
-#     os.remove(docx_file_path)
-# doc = Document()
-
-# # Hàm để lưu ma trận phân lớp vào file DOCX
-# def save_confusion_matrix_to_image(cm, title='Ma trận phân lớp'):
-#     buf = io.BytesIO()
-#     plt.figure(figsize=(8, 6))
-#     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=np.unique(y), yticklabels=np.unique(y))
-#     plt.title(title)
-#     plt.xlabel('Nhãn dự đoán')
-#     plt.ylabel('Nhãn thực tế')
-#     plt.savefig(buf, format='png')
-#     buf.seek(0)
-#     plt.close()
-#     return buf
-
-# # Phân chia dữ liệu
-# kf = KFold(n_splits=5, shuffle=True, random_state=42)
-
-# for train_index, test_index in kf.split(X):
-#     X_train, X_test = X[train_index], X[test_index]
-#     y_train, y_test = y[train_index], y[test_index]
-
-#     # Số lượng phần tử và nhãn trong tập test 
-#     print(f"Số lượng phần tử trong tập test: {len(X_test)}")
-#     print(f"Giá trị nhãn khác nhau trong tập test: {np.unique(y_test)}")
-
-#     doc.add_paragraph(f"Số lượng phần tử trong tập test: {len(X_test)}")
-#     doc.add_paragraph(f"Giá trị nhãn khác nhau trong tập test: {np.unique(y_test)}")
-
-#     # Mô hình Naive Bayes
-#     gnb = GaussianNB()
-#     gnb.fit(X_train, y_train)
-#     y_pred_bayes = gnb.predict(X_test)
-
-#     # Đánh giá Naive Bayes
-#     accuracy_bayes = accuracy_score(y_test, y_pred_bayes) * 100
-#     print(f"Độ chính xác tổng thể của Naive Bayes: {accuracy_bayes:.2f}%")
-#     print("Báo cáo phân loại Naive Bayes:")
-#     print(classification_report(y_test, y_pred_bayes, zero_division=1))
-
-#     doc.add_paragraph(f"Độ chính xác tổng thể của Naive Bayes: {accuracy_bayes:.2f}%")
-#     doc.add_paragraph("Báo cáo phân loại Naive Bayes:")
-#     doc.add_paragraph(classification_report(y_test, y_pred_bayes, zero_division=1))
-
-#     # Ma trận phân lớp Naive Bayes
-#     cm_bayes = confusion_matrix(y_test, y_pred_bayes)
-#     print("Ma trận phân lớp Naive Bayes:")
-#     print(cm_bayes)
-
-#     buf_cm_bayes = save_confusion_matrix_to_image(cm_bayes, title='Ma trận phân lớp Naive Bayes')
-#     doc.add_paragraph("Ma trận phân lớp của Naive Bayes:")
-#     doc.add_picture(buf_cm_bayes, width=Inches(6))
-
-#     break  # Chỉ chạy lần phân chia đầu tiên
-
-# # Lưu file DOCX
-# doc.save(docx_file_path)
-# print(f"Kết quả đã được lưu vào file: {docx_file_path}")
-
-
-
-
-
-#  33%
- 
-import pandas as pd
 import numpy as np
-from sklearn.preprocessing import LabelEncoder
+import pandas as pd
+from sklearn import neighbors, datasets
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 from sklearn.impute import SimpleImputer
-from sklearn.model_selection import KFold
-from sklearn.naive_bayes import GaussianNB
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-import seaborn as sns
+from sklearn.metrics import classification_report
+import joblib
+from sklearn.linear_model import LogisticRegression
 import matplotlib.pyplot as plt
-import io
-from docx import Document
-from docx.shared import Inches
-import os
+from google.colab import drive
+from sklearn.naive_bayes import GaussianNB
+import seaborn as sns
 
-# Đọc dữ liệu
-df = pd.read_csv("D:\\MHUD\\THBuoi2_NguyenHaiDuong_B2013465\\Crime_Data_from_2020_to_Present.csv", sep=",")
+# Kết nối Google Colab với Google Drive
+drive.mount('/content/drive')
 
-# Chọn thuộc tính và nhãn
-data = df[['TIME OCC', 'AREA', 'Vict Age', 'Vict Sex', 'Vict Descent', 'Premis Cd', 'Weapon Used Cd', 'LOCATION', 'Crm Cd']]
+# Đọc dữ liệu từ tệp trong Google Drive
+file_path = '/content/drive/My Drive/Kun/Crime_Data_from_2020_to_Present.csv'
+df = pd.read_csv(file_path, sep=",")
+# Lay thuoc tinh va nhan
+data = df[['TIME OCC', 'AREA', 'Vict Age', 'Vict Sex', 'Vict Descent', 'Premis Cd', 'Weapon Used Cd', 'Crm Cd']]
 
-# Chuyển dữ liệu thành dạng array
-X = data.iloc[:, :-1].values
-y = data.iloc[:, -1].values
+data = data.dropna()
+# print(data.info())
 
-# Xử lý những thuộc tính chứa giá trị null
-# Tách riêng các cột số và cột phân loại
-numeric_columns = [0, 1, 2, 5, 6]  # Các cột số: TIME OCC, AREA, Vict Age, Premis Cd, Weapon Used Cd
-categorical_columns = [3, 4, 7]    # Các cột phân loại: Vict Sex, Vict Descent, LOCATION
+# Kiem tra nhung cot co chua gia tri null
+# for col in data.columns:
+#     missing_data = data[col].isna().sum()
+#     missing_precent = missing_data/len(data) * 100
+#     print(f"Column {col}: has {missing_precent}% missing data")
 
-# Xử lý cột số (chiến lược 'mean' cho các cột số)
-numeric_imputer = SimpleImputer(missing_values=np.nan, strategy="mean")
-X[:, numeric_columns] = numeric_imputer.fit_transform(X[:, numeric_columns])
+# Ma hoa nhan
+le = LabelEncoder()
+data['Vict Sex'] = le.fit_transform(data['Vict Sex'])
+data['Vict Descent'] = le.fit_transform(data['Vict Descent'])
+data['AREA'] = le.fit_transform(data['AREA'])
 
-# Xử lý cột phân loại (chiến lược 'most_frequent' cho các cột phân loại)
-categorical_imputer = SimpleImputer(missing_values=np.nan, strategy="most_frequent")
-X[:, categorical_columns] = categorical_imputer.fit_transform(X[:, categorical_columns])
+# #Scale du lieu (chuan hoa du lieu dung min max)
+# scaler = MinMaxScaler()
+# data[['Premis Cd', 'Vict Age']] = scaler.fit_transform(data[['Premis Cd','Vict Age']])
 
-# Mã hóa các thuộc tính phân loại bằng LabelEncoder
-encoder = LabelEncoder()
-for col in categorical_columns:
-    X[:, col] = encoder.fit_transform(X[:, col])
+# Chuan hoa thoi gian
+def categorize_time_period(time_occ):
+    if 600 <= time_occ < 1200: # 06:00 to 12:00 Moring
+        return 0
+    elif 1200 <= time_occ < 1800 :  # 12:00 to 18:00 Afternoon
+        return 1
+    elif 1800 <= time_occ <= 2400 : # 18:00 to 24:00 Night
+        return 2
+    else: # Middal night
+        return 3
 
-# Đường dẫn file DOCX
-docx_file_path = 'D:\\MHUD\\THBuoi2_NguyenHaiDuong_B2013465\\ThongKeKQ_Bayes2.docx'
-if os.path.exists(docx_file_path):
-    os.remove(docx_file_path)
-doc = Document()
+def categorize_age(age):
+    if 0 <= age <= 5:
+        return 0
+    elif 6 <= age <= 12:
+        return 1
+    elif 13 <= age <= 17:
+        return 2
+    elif 18 <= age <= 25:
+        return 3
+    elif 26 <= age <= 45:
+        return 4
+    elif 46 <= age <= 65:
+        return 5
+    else:
+        return 6
 
-# Hàm để lưu ma trận phân lớp vào file DOCX
-def save_confusion_matrix_to_image(cm, title='Ma trận phân lớp'):
-    buf = io.BytesIO()
-    plt.figure(figsize=(8, 6))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=np.unique(y), yticklabels=np.unique(y))
-    plt.title(title)
-    plt.xlabel('Nhãn dự đoán')
-    plt.ylabel('Nhãn thực tế')
-    plt.savefig(buf, format='png')
-    buf.seek(0)
-    plt.close()
-    return buf
+def categorize_crime_type(crime_code):
+    # Danh sách mã tội phạm cho từng loại
+    violent_crimes = [
+        110, 113, 121, 122, 210, 220, 230, 231,
+        235, 236, 250, 251, 310, 320, 330, 622,
+        623, 624, 625, 626, 627, 648, 753, 755,
+        756, 810, 812, 813, 860, 865, 870, 880,
+        882, 884, 886, 910, 921, 922, 928, 930,
+        940, 950, 943, 944, 946, 948, 949
+    ]
 
-# Phân chia dữ liệu
-kf = KFold(n_splits=5, shuffle=True, random_state=42)
+    sexual_offenses = [
+        121, 122, 760, 761, 762, 763, 805, 806,
+        810, 812, 813, 814, 815, 820, 821, 830,
+        840, 845, 850
+    ]
 
-for train_index, test_index in kf.split(X):
-    X_train, X_test = X[train_index], X[test_index]
-    y_train, y_test = y[train_index], y[test_index]
+    theft_property_crimes = [
+        210, 220, 310, 320, 330, 331, 341, 343,
+        345, 347, 349, 350, 351, 352, 353, 354,
+        410, 420, 421, 440, 441, 442, 443, 444,
+        450, 451, 452, 473, 474, 480, 485, 487,
+        510, 520, 522, 668, 670, 740, 745
+    ]
 
-    # Số lượng phần tử và nhãn trong tập test
-    print(f"Số lượng phần tử trong tập test: {len(X_test)}")
-    print(f"Giá trị nhãn khác nhau trong tập test: {np.unique(y_test)}")
+    economic_fraud_crimes = [
+        649, 651, 652, 653, 654, 660, 661,
+        662, 664, 666, 668, 670, 950, 951, 956
+    ]
 
-    doc.add_paragraph(f"Số lượng phần tử trong tập test: {len(X_test)}")
-    doc.add_paragraph(f"Giá trị nhãn khác nhau trong tập test: {np.unique(y_test)}")
+    # social_legal_violations = [
+    #     432, 433, 434, 435, 436, 437, 438,
+    #     439, 440, 441, 442, 443, 444, 445,
+    #     446, 450, 451, 452, 453, 470, 471,
+    #     473, 474, 475, 480, 485, 487, 510,
+    #     520, 522, 622, 623, 624, 625, 626,
+    #     627, 647, 648, 649, 651, 652, 653,
+    #     654, 660, 661, 662, 664, 666, 668,
+    #     670, 740, 745, 753, 755, 756, 760,
+    #     761, 762, 763, 805, 806, 810, 812,
+    #     813, 814, 815, 820, 821, 822, 830,
+    #     840, 845, 850, 860, 865, 870, 880,
+    #     882, 884, 886, 888, 890, 900, 901,
+    #     902, 903, 904, 906
+    # ]
 
-    # Mô hình Naive Bayes
-    gnb = GaussianNB()
-    gnb.fit(X_train, y_train)
-    y_pred_bayes = gnb.predict(X_test)
-
-    # Đánh giá Naive Bayes
-    accuracy_bayes = accuracy_score(y_test, y_pred_bayes) * 100
-    print(f"Độ chính xác tổng thể của Naive Bayes: {accuracy_bayes:.2f}%")
-    print("Báo cáo phân loại Naive Bayes:")
-    print(classification_report(y_test, y_pred_bayes, zero_division=1))
-
-    doc.add_paragraph(f"Độ chính xác tổng thể của Naive Bayes: {accuracy_bayes:.2f}%")
-    doc.add_paragraph("Báo cáo phân loại Naive Bayes:")
-    doc.add_paragraph(classification_report(y_test, y_pred_bayes, zero_division=1))
-
-    # Ma trận phân lớp Naive Bayes
-    cm_bayes = confusion_matrix(y_test, y_pred_bayes)
-    print("Ma trận phân lớp Naive Bayes:")
-    print(cm_bayes)
-
-    buf_cm_bayes = save_confusion_matrix_to_image(cm_bayes, title='Ma trận phân lớp Naive Bayes')
-    doc.add_paragraph("Ma trận phân lớp của Naive Bayes:")
-    doc.add_picture(buf_cm_bayes, width=Inches(6))
-
-    break  # Chỉ chạy lần phân chia đầu tiên
-
-# Lưu file DOCX
-doc.save(docx_file_path)
-print(f"Kết quả đã được lưu vào file: {docx_file_path}")
-
-
+    # Phân loại mã tội phạm
+    if crime_code in violent_crimes:
+        return 0  # Tội phạm nghiêm trọng liên quan đến tính mạng và bạo lực
+    elif crime_code in sexual_offenses:
+        return 1  # Tội phạm tình dục
+    elif crime_code in theft_property_crimes:
+        return 2  # Tội liên quan đến trộm cắp và tài sản
+    elif crime_code in economic_fraud_crimes:
+        return 3  # Tội phạm kinh tế và gian lận
+    else:
+        return 4  # Tội phạm liên quan đến hành vi xã hội và luật pháp
 
 
-# import pandas as pd
-# import numpy as np
-# from sklearn.preprocessing import LabelEncoder
-# from sklearn.impute import SimpleImputer
-# from sklearn.model_selection import KFold
-# from sklearn.naive_bayes import GaussianNB
-# from sklearn.metrics import accuracy_score, classification_report
-# import os
-# from docx import Document
+def categorize_location(premis_code):
+    residential = {502, 501, 504, 505, 507, 510, 511, 514, 515, 516, 518, 519, 508, 509, 513}
+    transportation = {101, 128, 124, 212, 801, 802, 804, 111, 113, 115, 122, 905, 910, 912, 890, 929, 937, 940, 950,
+                      893, 745, 110}
+    commercial = {405, 248, 404, 403, 410, 406, 412, 413, 201, 202, 210, 207, 233, 235, 244, 401, 402, 217, 237, 250}
+    public_space = {102, 108, 109, 104, 107, 127, 141, 143, 144, 145, 146, 147, 109, 208, 209, 149, 243, 718, 756, 757}
+    government_facility = {725, 726, 753, 214, 240}
+    educational = {720, 721, 704, 722, 730, 731, 912}
 
-# # Đọc dữ liệu
-# df = pd.read_csv("D:\\MHUD\\THBuoi2_NguyenHaiDuong_B2013465\\Crime_Data_from_2020_to_Present.csv", sep=",")
+    if premis_code in residential:
+        return 0  # Khu dân cư
+    elif premis_code in transportation:
+        return 1  # Giao thông vận tải
+    elif premis_code in commercial:
+        return 2  #Thương mại
+    elif premis_code in public_space:
+        return 3  # Khu vực công cộng
+    elif premis_code in government_facility:
+        return 4  # Cơ sở chính phủ
+    elif premis_code in educational:
+        return 5  # Cơ sở giáo dục
+    else:
+        return 6  # Khu vực khác
 
-# # Chọn thuộc tính và nhãn
-# data = df[['TIME OCC', 'AREA', 'Vict Age', 'Vict Sex', 'Vict Descent', 'Premis Cd', 'Weapon Used Cd', 'LOCATION', 'Crm Cd']]
 
-# # Chuyển dữ liệu thành dạng array
-# X = data.iloc[:, :-1].values
+data['TIME OCC'] = data['TIME OCC'].apply(categorize_time_period)
+data['Crm Cd'] = data['Crm Cd'].apply(categorize_crime_type)
+data['Premis Cd'] = data['Premis Cd'].apply(categorize_location)
+data['Vict Age'] = data['Vict Age'].apply(categorize_age)
+
+#Scale du lieu (chuan hoa du lieu dung min max)
+scaler = MinMaxScaler()
+data[['Premis Cd', 'Vict Age', 'Vict Sex', 'Vict Descent', 'AREA', 'TIME OCC', 'Weapon Used Cd']] = scaler.fit_transform(data[['Premis Cd', 'Vict Age','Vict Sex', 'Vict Descent', 'AREA', 'TIME OCC', 'Weapon Used Cd']])
+
+
+
+
+
+# Chuyen du lieu thanh dang array
+# X = data.iloc[:,: -1 ].values
 # y = data.iloc[:, -1].values
 
-# # Xử lý những thuộc tính chứa giá trị null
+
+X = data.drop(['Crm Cd'], axis = 1)
+y = data['Crm Cd']
+#under_samling
+from imblearn.under_sampling import NearMiss
+nm = NearMiss()
+# Oversampling
+from imblearn.over_sampling import RandomOverSampler
+ros = RandomOverSampler()
+X_res, y_res = ros.fit_resample(X, y)
+
+
+
+# Chuyen du lieu thanh dang array
+X_main = X_res.values
+y_main = y_res.values
+
+print(X_res.shape)
+print(y_res.shape)
+
+# Tien hanh xu ly nhung thuoc tinh chua gia tri null
 # imputer = SimpleImputer(missing_values=np.nan, strategy="most_frequent")
-# X[:, 3:7] = imputer.fit_transform(X[:, 3:7])
+# imputer.fit(X[:, 3: 7])
+# X[:,3: 7] = imputer.transform(X[:,3 :7])
 
-# # Mã hóa dữ liệu bằng LabelEncoder
-# encoder = LabelEncoder()
-# X[:, 3] = encoder.fit_transform(X[:, 3])  # Encode 'Vict Sex'
-# X[:, 4] = encoder.fit_transform(X[:, 4])  # Encode 'Vict Descent'
-# X[:, 7] = encoder.fit_transform(X[:, 7])  # Encode 'LOCATION'
-
-# # Đường dẫn file DOCX
-# docx_file_path = 'D:\\MHUD\\THBuoi2_NguyenHaiDuong_B2013465\\ThongKeKQ_Bayes.docx'
-# if os.path.exists(docx_file_path):
-#     os.remove(docx_file_path)
-# doc = Document()
-
-# # Phân chia dữ liệu
-# kf = KFold(n_splits=5, shuffle=True, random_state=42)
-
-# for train_index, test_index in kf.split(X):
-#     X_train, X_test = X[train_index], X[test_index]
-#     y_train, y_test = y[train_index], y[test_index]
-
-#     # Số lượng phần tử và nhãn trong tập test 
-#     print(f"Số lượng phần tử trong tập test: {len(X_test)}")
-#     print(f"Giá trị nhãn khác nhau trong tập test: {np.unique(y_test)}")
-
-#     doc.add_paragraph(f"Số lượng phần tử trong tập test: {len(X_test)}")
-#     doc.add_paragraph(f"Giá trị nhãn khác nhau trong tập test: {np.unique(y_test)}")
-
-#     # Mô hình Naive Bayes
-#     gnb = GaussianNB()
-#     gnb.fit(X_train, y_train)
-#     y_pred_bayes = gnb.predict(X_test)
-
-#     # Đánh giá Naive Bayes
-#     accuracy_bayes = accuracy_score(y_test, y_pred_bayes) * 100
-#     print(f"Độ chính xác tổng thể của Naive Bayes: {accuracy_bayes:.2f}%")
-#     print("Báo cáo phân loại Naive Bayes:")
-#     print(classification_report(y_test, y_pred_bayes, zero_division=1))
-
-#     doc.add_paragraph(f"Độ chính xác tổng thể của Naive Bayes: {accuracy_bayes:.2f}%")
-#     doc.add_paragraph("Báo cáo phân loại Naive Bayes:")
-#     doc.add_paragraph(classification_report(y_test, y_pred_bayes, zero_division=1))
-
-#     break  # Chỉ chạy lần phân chia đầu tiên
-
-# # Lưu file DOCX
-# doc.save(docx_file_path)
-# print(f"Kết quả đã được lưu vào file: {docx_file_path}")
-
-
-
-
-# import pandas as pd
-# import numpy as np
-# from sklearn.preprocessing import OneHotEncoder
-# from sklearn.impute import SimpleImputer
-# from sklearn.model_selection import KFold
-# from sklearn.naive_bayes import GaussianNB
-# from sklearn.metrics import accuracy_score, classification_report
-# from docx import Document
-# import os
-
-# # Đọc dữ liệu
-# df = pd.read_csv("D:\\MHUD\\THBuoi2_NguyenHaiDuong_B2013465\\Crime_Data_from_2020_to_Present.csv", sep=",")
-
-# # Chọn thuộc tính và nhãn
-# data = df[['TIME OCC', 'AREA', 'Vict Age', 'Vict Sex', 'Vict Descent', 'Premis Cd', 'Weapon Used Cd', 'LOCATION', 'Crm Cd']]
-
-# # Chuyển dữ liệu thành dạng array
-# X = data.iloc[:, :-1].values
-# y = data.iloc[:, -1].values
-
-# # Xử lý những thuộc tính chứa giá trị null
 # imputer = SimpleImputer(missing_values=np.nan, strategy="most_frequent")
-# X[:, 3:7] = imputer.fit_transform(X[:, 3:7])
+# X[:, 6:7] = imputer.fit_transform((X[:, 6:7]))
 
-# # Mã hóa dữ liệu bằng OneHotEncoder
-# encoder = OneHotEncoder(drop='first', sparse=False)
-# categorical_columns = [3, 4, 7]  # Index của các cột cần mã hóa
-# X_encoded = encoder.fit_transform(X[:, categorical_columns])
+# Chia dữ liệu thành tập huấn luyện và tập kiểm tra
+X_train, X_test, y_train, y_test = train_test_split(X_res, y_res, test_size=0.2, random_state=42)
 
-# # Kết hợp với các thuộc tính số khác
-# X = np.concatenate([X[:, :3], X_encoded], axis=1)
+# Xây dựng mô hình Naive Bayes
+model_nb = GaussianNB()
+model_nb.fit(X_train, y_train)
 
-# # Đường dẫn file DOCX
-# docx_file_path = 'D:\\MHUD\\THBuoi2_NguyenHaiDuong_B2013465\\ThongKeKQ_Bayes.docx'
-# if os.path.exists(docx_file_path):
-#     os.remove(docx_file_path)
-# doc = Document()
+# Dự đoán
+y_pred_nb = model_nb.predict(X_test)
 
-# # Phân chia dữ liệu
-# kf = KFold(n_splits=5, shuffle=True, random_state=42)
+# Tính toán các chỉ số
+accuracy_nb = accuracy_score(y_test, y_pred_nb)
+precision_nb = precision_score(y_test, y_pred_nb, average='weighted')
+recall_nb = recall_score(y_test, y_pred_nb, average='weighted')
+f1_nb = f1_score(y_test, y_pred_nb, average='weighted')
 
-# for train_index, test_index in kf.split(X):
-#     X_train, X_test = X[train_index], X[test_index]
-#     y_train, y_test = y[train_index], y[test_index]
+print(f"Accuracy: {accuracy_nb:.4f}")
+print(f"Precision: {precision_nb:.4f}")
+print(f"Recall: {recall_nb:.4f}")
+print(f"F1 Score: {f1_nb:.4f}")
 
-#     # Mô hình Naive Bayes
-#     gnb = GaussianNB()
-#     gnb.fit(X_train, y_train)
-#     y_pred_bayes = gnb.predict(X_test)
+# Tính toán ma trận nhầm lẫn
+cm = confusion_matrix(y_test, y_pred_nb)
+cm_df = pd.DataFrame(cm, index=np.unique(y_test), columns=np.unique(y_test))
 
-#     # Đánh giá Naive Bayes
-#     accuracy_bayes = accuracy_score(y_test, y_pred_bayes) * 100
-#     print(f"Độ chính xác tổng thể của Naive Bayes: {accuracy_bayes:.2f}%")
-#     print("Báo cáo phân loại Naive Bayes:")
-#     print(classification_report(y_test, y_pred_bayes, zero_division=1))
-
-#     doc.add_paragraph(f"Độ chính xác tổng thể của Naive Bayes: {accuracy_bayes:.2f}%")
-#     doc.add_paragraph("Báo cáo phân loại Naive Bayes:")
-#     doc.add_paragraph(classification_report(y_test, y_pred_bayes, zero_division=1))
-
-#     break  # Chỉ chạy lần phân chia đầu tiên
-
-# # Lưu file DOCX
-# doc.save(docx_file_path)
-# print(f"Kết quả đã được lưu vào file: {docx_file_path}")
-
-
-# import pandas as pd
-# import numpy as np
-# from sklearn.preprocessing import LabelEncoder
-# from sklearn.impute import SimpleImputer
-# from sklearn.model_selection import KFold
-# from sklearn.naive_bayes import GaussianNB
-# from sklearn.metrics import accuracy_score, classification_report
-# from docx import Document
-# import os
-
-# # Đọc dữ liệu
-# df = pd.read_csv("D:\\MHUD\\THBuoi2_NguyenHaiDuong_B2013465\\Crime_Data_from_2020_to_Present.csv", sep=",")
-
-# # Chọn thuộc tính và nhãn
-# data = df[['TIME OCC', 'AREA', 'Vict Age', 'Vict Sex', 'Vict Descent', 'Premis Cd', 'Weapon Used Cd', 'LOCATION', 'Crm Cd']]
-
-# # Chuyển dữ liệu thành dạng array
-# X = data.iloc[:, :-1].values
-# y = data.iloc[:, -1].values
-
-# # Xử lý những thuộc tính chứa giá trị null
-# imputer = SimpleImputer(missing_values=np.nan, strategy="most_frequent")
-# X[:, 3:7] = imputer.fit_transform(X[:, 3:7])
-
-# # Mã hóa dữ liệu bằng LabelEncoder
-# encoder = LabelEncoder()
-# X[:, 3] = encoder.fit_transform(X[:, 3])  # Encode 'Vict Sex'
-# X[:, 4] = encoder.fit_transform(X[:, 4])  # Encode 'Vict Descent'
-# X[:, 7] = encoder.fit_transform(X[:, 7])  # Encode 'LOCATION'
-
-# # Đường dẫn file DOCX
-# docx_file_path = 'D:\\MHUD\\THBuoi2_NguyenHaiDuong_B2013465\\ThongKeKQ_Bayes.docx'
-# if os.path.exists(docx_file_path):
-#     os.remove(docx_file_path)
-# doc = Document()
-
-# # Đường dẫn file TXT
-# txt_file_path = 'D:\\MHUD\\THBuoi2_NguyenHaiDuong_B2013465\\ThongKeKQ_Bayes.txt'
-# if os.path.exists(txt_file_path):
-#     os.remove(txt_file_path)
-
-# # Phân chia dữ liệu
-# kf = KFold(n_splits=5, shuffle=True, random_state=42)
-
-# for train_index, test_index in kf.split(X):
-#     X_train, X_test = X[train_index], X[test_index]
-#     y_train, y_test = y[train_index], y[test_index]
-
-#     # Số lượng phần tử và nhãn trong tập test 
-#     test_size = len(X_test)
-#     unique_labels = np.unique(y_test)
-
-#     print(f"Số lượng phần tử trong tập test: {test_size}")
-#     print(f"Giá trị nhãn khác nhau trong tập test: {unique_labels}")
-
-#     doc.add_paragraph(f"Số lượng phần tử trong tập test: {test_size}")
-#     doc.add_paragraph(f"Giá trị nhãn khác nhau trong tập test: {unique_labels}")
-
-#     # Mô hình Naive Bayes
-#     gnb = GaussianNB()
-#     gnb.fit(X_train, y_train)
-#     y_pred_bayes = gnb.predict(X_test)
-
-#     # Đánh giá Naive Bayes
-#     accuracy_bayes = accuracy_score(y_test, y_pred_bayes) * 100
-#     report = classification_report(y_test, y_pred_bayes, zero_division=1)
-
-#     print(f"Độ chính xác tổng thể của Naive Bayes: {accuracy_bayes:.2f}%")
-#     print("Báo cáo phân loại Naive Bayes:")
-#     print(report)
-
-#     doc.add_paragraph(f"Độ chính xác tổng thể của Naive Bayes: {accuracy_bayes:.2f}%")
-#     doc.add_paragraph("Báo cáo phân loại Naive Bayes:")
-#     doc.add_paragraph(report)
-
-#     # Lưu kết quả vào file TXT với mã hóa UTF-8
-#     with open(txt_file_path, 'a', encoding='utf-8') as f:
-#         f.write(f"Số lượng phần tử trong tập test: {test_size}\n")
-#         f.write(f"Giá trị nhãn khác nhau trong tập test: {unique_labels}\n")
-#         f.write(f"Độ chính xác tổng thể của Naive Bayes: {accuracy_bayes:.2f}%\n")
-#         f.write("Báo cáo phân loại Naive Bayes:\n")
-#         f.write(report)
-#         f.write("\n" + "="*50 + "\n")  # Để phân cách giữa các lần phân chia
-
-#     break  # Chỉ chạy lần phân chia đầu tiên
-
-# # Lưu file DOCX
-# doc.save(docx_file_path)
-# print(f"Kết quả đã được lưu vào file: {docx_file_path}")
-# print(f"Kết quả đã được lưu vào file: {txt_file_path}")
+# Vẽ ma trận nhầm lẫn
+plt.figure(figsize=(10, 7))
+sns.heatmap(cm_df, annot=True, fmt="d", cmap="Blues", cbar=True, square=True)
+plt.xlabel("Dự đoán")
+plt.ylabel("Thực tế")
+plt.title("Ma trận nhầm lẫn")
+plt.show()
