@@ -94,21 +94,21 @@ def categorize_crime_type(crime_code):
         662, 664, 666, 668, 670, 950, 951, 956
     ]
 
-    social_legal_violations = [
-        432, 433, 434, 435, 436, 437, 438,
-        439, 440, 441, 442, 443, 444, 445,
-        446, 450, 451, 452, 453, 470, 471,
-        473, 474, 475, 480, 485, 487, 510,
-        520, 522, 622, 623, 624, 625, 626,
-        627, 647, 648, 649, 651, 652, 653,
-        654, 660, 661, 662, 664, 666, 668,
-        670, 740, 745, 753, 755, 756, 760,
-        761, 762, 763, 805, 806, 810, 812,
-        813, 814, 815, 820, 821, 822, 830,
-        840, 845, 850, 860, 865, 870, 880,
-        882, 884, 886, 888, 890, 900, 901,
-        902, 903, 904, 906
-    ]
+    # social_legal_violations = [
+    #     432, 433, 434, 435, 436, 437, 438,
+    #     439, 440, 441, 442, 443, 444, 445,
+    #     446, 450, 451, 452, 453, 470, 471,
+    #     473, 474, 475, 480, 485, 487, 510,
+    #     520, 522, 622, 623, 624, 625, 626,
+    #     627, 647, 648, 649, 651, 652, 653,
+    #     654, 660, 661, 662, 664, 666, 668,
+    #     670, 740, 745, 753, 755, 756, 760,
+    #     761, 762, 763, 805, 806, 810, 812,
+    #     813, 814, 815, 820, 821, 822, 830,
+    #     840, 845, 850, 860, 865, 870, 880,
+    #     882, 884, 886, 888, 890, 900, 901,
+    #     902, 903, 904, 906
+    # ]
 
     # Phân loại mã tội phạm
     if crime_code in violent_crimes:
@@ -119,10 +119,8 @@ def categorize_crime_type(crime_code):
         return 2  # Tội liên quan đến trộm cắp và tài sản
     elif crime_code in economic_fraud_crimes:
         return 3  # Tội phạm kinh tế và gian lận
-    elif crime_code in social_legal_violations:
-        return 4  # Tội phạm liên quan đến hành vi xã hội và luật pháp
     else:
-        return 5
+        return 4  # Tội phạm liên quan đến hành vi xã hội và luật pháp
 
 
 def categorize_location(premis_code):
@@ -176,14 +174,16 @@ nm = NearMiss()
 # Oversampling
 from imblearn.over_sampling import RandomOverSampler
 ros = RandomOverSampler()
-X_res, y_res = nm.fit_resample(X, y)
+X_res, y_res = ros.fit_resample(X, y)
 
 
 
 # Chuyen du lieu thanh dang array
-X_main = X_res.iloc[:,:].values
-y_main = y_res.iloc[:].values
+X_main = X_res.values
+y_main = y_res.values
 
+print(X_res.shape)
+print(y_res.shape)
 
 # Tien hanh xu ly nhung thuoc tinh chua gia tri null
 # imputer = SimpleImputer(missing_values=np.nan, strategy="most_frequent")
