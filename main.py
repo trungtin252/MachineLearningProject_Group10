@@ -1,15 +1,10 @@
 import numpy as np
 import pandas as pd
-from sklearn import neighbors, datasets
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.preprocessing import LabelEncoder, StandardScaler, MinMaxScaler
-from sklearn.impute import SimpleImputer
-from sklearn.metrics import classification_report
-import joblib
-from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import cross_val_score, KFold
+from sklearn.metrics import make_scorer, accuracy_score, precision_score, recall_score, f1_score
 
 
 # Doc du lieu
@@ -21,21 +16,12 @@ data = df[['TIME OCC', 'AREA', 'Vict Age', 'Vict Sex', 'Vict Descent', 'Premis C
 data = data.dropna()
 # print(data.info())
 
-# Kiem tra nhung cot co chua gia tri null
-# for col in data.columns:
-#     missing_data = data[col].isna().sum()
-#     missing_precent = missing_data/len(data) * 100
-#     print(f"Column {col}: has {missing_precent}% missing data")
-
 # Ma hoa nhan
 le = LabelEncoder()
 data['Vict Sex'] = le.fit_transform(data['Vict Sex'])
 data['Vict Descent'] = le.fit_transform(data['Vict Descent'])
 data['AREA'] = le.fit_transform(data['AREA'])
 
-# #Scale du lieu (chuan hoa du lieu dung min max)
-# scaler = MinMaxScaler()
-# data[['Premis Cd', 'Vict Age']] = scaler.fit_transform(data[['Premis Cd','Vict Age']])
 
 # Chuan hoa thoi gian
 def categorize_time_period(time_occ):
@@ -94,22 +80,6 @@ def categorize_crime_type(crime_code):
         662, 664, 666, 668, 670, 950, 951, 956
     ]
 
-    # social_legal_violations = [
-    #     432, 433, 434, 435, 436, 437, 438,
-    #     439, 440, 441, 442, 443, 444, 445,
-    #     446, 450, 451, 452, 453, 470, 471,
-    #     473, 474, 475, 480, 485, 487, 510,
-    #     520, 522, 622, 623, 624, 625, 626,
-    #     627, 647, 648, 649, 651, 652, 653,
-    #     654, 660, 661, 662, 664, 666, 668,
-    #     670, 740, 745, 753, 755, 756, 760,
-    #     761, 762, 763, 805, 806, 810, 812,
-    #     813, 814, 815, 820, 821, 822, 830,
-    #     840, 845, 850, 860, 865, 870, 880,
-    #     882, 884, 886, 888, 890, 900, 901,
-    #     902, 903, 904, 906
-    # ]
-
     # Phân loại mã tội phạm
     if crime_code in violent_crimes:
         return 0  # Tội phạm nghiêm trọng liên quan đến tính mạng và bạo lực
@@ -153,67 +123,66 @@ data['Crm Cd'] = data['Crm Cd'].apply(categorize_crime_type)
 data['Premis Cd'] = data['Premis Cd'].apply(categorize_location)
 data['Vict Age'] = data['Vict Age'].apply(categorize_age)
 
+
 #Scale du lieu (chuan hoa du lieu dung min max)
 scaler = MinMaxScaler()
 data[['Premis Cd', 'Vict Age', 'Vict Sex', 'Vict Descent', 'AREA', 'TIME OCC', 'Weapon Used Cd']] = scaler.fit_transform(data[['Premis Cd', 'Vict Age','Vict Sex', 'Vict Descent', 'AREA', 'TIME OCC', 'Weapon Used Cd']])
 
 
-
-
-
-# Chuyen du lieu thanh dang array
-# X = data.iloc[:,: -1 ].values
-# y = data.iloc[:, -1].values
-
-
 X = data.drop(['Crm Cd'], axis = 1)
 y = data['Crm Cd']
-#under_samling
-from imblearn.under_sampling import NearMiss
-nm = NearMiss()
+
+
 # Oversampling
 from imblearn.over_sampling import RandomOverSampler
 ros = RandomOverSampler()
 X_res, y_res = ros.fit_resample(X, y)
 
 
-
 # Chuyen du lieu thanh dang array
 X_main = X_res.values
 y_main = y_res.values
-
-print(X_res.shape)
-print(y_res.shape)
-
-# Tien hanh xu ly nhung thuoc tinh chua gia tri null
-# imputer = SimpleImputer(missing_values=np.nan, strategy="most_frequent")
-# imputer.fit(X[:, 3: 7])
-# X[:,3: 7] = imputer.transform(X[:,3 :7])
-
-# imputer = SimpleImputer(missing_values=np.nan, strategy="most_frequent")
-# X[:, 6:7] = imputer.fit_transform((X[:, 6:7]))
 
 # Phan chia tap du lieu
 X_train, X_test, y_train, y_test = train_test_split(X_main, y_main, test_size=0.2, random_state=42)
 
 #Phần model chính
 
-model = RandomForestClassifier(n_estimators=100, random_state=42, max_depth=20)
+model = RandomForestClassifier(n_estimators=100, random_state=42)
 
-model.fit(X_train, y_train)
+# # ----------------------------------------Theo nghi thức Hold - out----------------------------------------------------------
+# model.fit(X_train, y_train)
+#
+# # Dự đoán trên tập kiểm tra
+# y_pred = model.predict(X_test)
+#
+# # Đánh giá độ chính xác của mô hình
+# accuracy = accuracy_score(y_test, y_pred)
+# print(f"Độ chính xác tổng thể của mô hình: {accuracy * 100:.2f}%")
+#
+# # Tính Precision, Recall và F1-score tổng thể
+# precision = precision_score(y_test, y_pred, average='micro')
+# recall = recall_score(y_test, y_pred, average='micro')
+# f1 = f1_score(y_test, y_pred, average='micro')
+#
+# print(f"Precision tổng thể: {precision:.2f}")
+# print(f"Recall tổng thể: {recall:.2f}")
+# print(f"F1-score tổng thể: {f1:.2f}")
 
-# Dự đoán trên tập kiểm tra
-y_pred = model.predict(X_test)
 
-# Đánh giá độ chính xác của mô hình
-accuracy = accuracy_score(y_test, y_pred)
-print(f"Độ chính xác tổng thể của mô hình: {accuracy * 100:.2f}%")
+# #-------------------------------------- Theo nghi thức K-Fold--------------------------------------------------------------
+k = 5  # Số lượng folds
+kf = KFold(n_splits=k, shuffle=True, random_state=42)
 
-# Tính Precision, Recall và F1-score tổng thể
-precision = precision_score(y_test, y_pred, average='micro')
-recall = recall_score(y_test, y_pred, average='micro')
-f1 = f1_score(y_test, y_pred, average='micro')
+# Đánh giá độ chính xác
+accuracy_scores = cross_val_score(model, X_main, y_main, cv=kf, scoring='accuracy')
+print(f"Độ chính xác tổng thể của mô hình: {np.mean(accuracy_scores) * 100:.2f}%")
 
-print(f"Precision tổng thể: {precision:.2f}")
-print(f"Recall tổng thể: {recall:.2f}")
-print(f"F1-score tổng thể: {f1:.2f}")
+# Tính Precision, Recall và F1-score
+precision_scores = cross_val_score(model, X_main, y_main, cv=kf, scoring='precision_micro')
+recall_scores = cross_val_score(model, X_main, y_main, cv=kf, scoring='recall_micro')
+f1_scores = cross_val_score(model, X_main, y_main, cv=kf, scoring='f1_micro')
+
+print(f"Precision trung bình: {np.mean(precision_scores):.2f}")
+print(f"Recall trung bình: {np.mean(recall_scores):.2f}")
+print(f"F1-score trung bình: {np.mean(f1_scores):.2f}")
